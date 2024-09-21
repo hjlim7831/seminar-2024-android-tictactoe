@@ -4,22 +4,24 @@ import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
+import androidx.lifecycle.ViewModelProvider
 import com.wafflestudio.tictactoe.databinding.ActivityMainBinding
 
-class MainActivity: AppCompatActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private var currentPlayer = "X"
-    private val board = Array(3) { Array(3) {""} }
+    private lateinit var viewModel: TicTacToeViewModel
     private lateinit var buttons: List<Button>
-    private var isGameOver = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel = ViewModelProvider(this)[TicTacToeViewModel::class.java]
+
         setupDrawer()
         setupGame()
+        observeViewModel()
     }
 
     private fun setupDrawer() {
@@ -39,66 +41,35 @@ class MainActivity: AppCompatActivity() {
             binding.button20, binding.button21, binding.button22
         )
         buttons.forEachIndexed { index, button ->
-
             button.setOnClickListener {
-                val row = index / 3
-                val col = index % 3
-                if (board[row][col].isEmpty()) {
-                    board[row][col] = currentPlayer
-                    button.text = currentPlayer
-                    if (checkWin(row, col)) {
-                        binding.gameStatusText.text = "$currentPlayer 승리!"
-                        endGame()
-                    } else if (isBoardFull()) {
-                        binding.gameStatusText.text = "무승부!"
-                        endGame()
-                    } else {
-                        currentPlayer = if (currentPlayer == "X") "O" else "X"
-                        binding.gameStatusText.text = "$currentPlayer 의 차례입니다"
-                    }
-                }
+                viewModel.onCellClicked(index / 3, index % 3)
             }
         }
 
         binding.resetButton.setOnClickListener {
-            resetGame()
+            viewModel.resetGame()
         }
-        resetGame()
     }
 
-    private fun checkWin(row: Int, col: Int): Boolean {
-        return (board[row][0] == board[row][1] && board[row][1] == board[row][2]) ||
-                (board[0][col] == board[1][col] && board[1][col] == board[2][col]) ||
-                (row == col && board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
-                (row + col == 2 && board[0][2] == board[1][1] && board[1][1] == board[2][0])
-    }
-
-    private fun isBoardFull(): Boolean {
-        return board.all { row -> row.all { it.isNotEmpty() } }
-    }
-
-    private fun endGame() {
-        isGameOver = true
-        disableButtons()
-        binding.resetButton.text = "한판 더"
-    }
-
-
-    private fun disableButtons() {
-        buttons.forEach { it.isEnabled = false }
-    }
-
-    private fun resetGame() {
-        board.forEach { row -> row.fill("") }
-        buttons.forEach {
-            it.text = ""
-            it.isEnabled = true
+    private fun observeViewModel() {
+        viewModel.board.observe(this) { board ->
+            board.forEachIndexed { rowIndex, row ->
+                row.forEachIndexed { colIndex, cell ->
+                    buttons[rowIndex * 3 + colIndex].text = cell
+                }
+            }
         }
-        currentPlayer = "X"
-        binding.gameStatusText.text = "게임 시작!"
-        binding.resetButton.text = "초기화"
+
+        viewModel.gameStatus.observe(this) { status ->
+            binding.gameStatusText.text = status
+        }
+
+        viewModel.isGameOver.observe(this) { isGameOver ->
+            buttons.forEach { it.isEnabled = !isGameOver }
+        }
+
+        viewModel.resetButtonText.observe(this) { text ->
+            binding.resetButton.text = text
+        }
     }
-
-
-
 }
