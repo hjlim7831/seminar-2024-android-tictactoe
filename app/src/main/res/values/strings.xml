@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">TicTacToe</string>
+    <string name="navigation_drawer_open">서랍 열기</string>
+    <string name="navigation_drawer_close">서랍 닫기</string>
 </resources>

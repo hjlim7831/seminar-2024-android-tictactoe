@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
@@ -7,5 +7,178 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity"
     >
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/ticTacToeMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        >
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:elevation="4dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            >
+
+            <ImageButton
+                android:id="@+id/drawerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start|center_vertical"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/baseline_menu_24"
+                android:contentDescription="Open drawer"
+                />
+
+            <TextView
+                android:id="@+id/gameStatusText"
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:layout_gravity="center"
+                android:text="게임 시작!"
+                android:textColor="@color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                />
+
+            <Button
+                android:id="@+id/resetButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end|center_vertical"
+                android:text="초기화"
+                android:textColor="@color/white"
+                />
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/gameBoard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="16dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintWidth_percent="0.9"
+            app:layout_constraintTop_toBottomOf="@id/toolbar"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <Button
+                android:id="@+id/button00"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button01"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toEndOf="@id/button00"
+                app:layout_constraintEnd_toStartOf="@id/button02"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button02"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button10"
+
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@id/button00"
+                app:layout_constraintBottom_toTopOf="@id/button20"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button11"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@id/button01"
+                app:layout_constraintBottom_toTopOf="@id/button21"
+                app:layout_constraintStart_toEndOf="@id/button10"
+                app:layout_constraintEnd_toStartOf="@id/button12"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button12"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintTop_toBottomOf="@id/button02"
+                app:layout_constraintBottom_toTopOf="@id/button22"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button20"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button21"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@id/button20"
+                app:layout_constraintEnd_toStartOf="@id/button22"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+            <Button
+                android:id="@+id/button22"
+                style="@style/TicTacToeButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintWidth_percent="0.32"
+                app:layout_constraintDimensionRatio="1:1" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/drawer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        >
+
+        <!-- 서랍 안 화면 UI 넣기-->
+
+    </com.google.android.material.navigation.NavigationView>
+
+</androidx.drawerlayout.widget.DrawerLayout>
