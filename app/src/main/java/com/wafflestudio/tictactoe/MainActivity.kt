@@ -5,13 +5,14 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.wafflestudio.tictactoe.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: TicTacToeViewModel
     private lateinit var buttons: List<Button>
-
+    private lateinit var gameAdapter : GameAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -21,7 +22,17 @@ class MainActivity : AppCompatActivity() {
 
         setupDrawer()
         setupGame()
+        setupRecyclerView()
         observeViewModel()
+    }
+
+    private fun setupRecyclerView() {
+        // ViewModel에서 관리하는 gameRecords를 Adapter에 전달
+        gameAdapter = GameAdapter(viewModel.gameRecords.value ?: listOf())
+
+        // RecyclerView에 Adapter와 LayoutManager 설정
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+        binding.recyclerView.adapter = gameAdapter
     }
 
     private fun setupDrawer() {
@@ -70,6 +81,9 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.resetButtonText.observe(this) { text ->
             binding.resetButton.text = text
+        }
+        viewModel.gameRecords.observe(this) { records ->
+            gameAdapter.notifyDataSetChanged()
         }
     }
 }

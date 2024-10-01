@@ -3,6 +3,7 @@ package com.wafflestudio.tictactoe
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.wafflestudio.tictactoe.model.GameRecord
 
 class TicTacToeViewModel: ViewModel() {
     private val _board = MutableLiveData(Array(3) { Array(3) { "" } })
@@ -19,6 +20,9 @@ class TicTacToeViewModel: ViewModel() {
     private val _resetButtonText = MutableLiveData("초기화")
     val resetButtonText: LiveData<String> = _resetButtonText
 
+    private val _gameRecords = MutableLiveData<List<GameRecord>>(mutableListOf())
+    val gameRecords: LiveData<List<GameRecord>> = _gameRecords
+
     fun onCellClicked(row: Int, col: Int) {
 
         if (_isGameOver.value == true || _board.value!![row][col].isNotEmpty()) return
@@ -26,6 +30,8 @@ class TicTacToeViewModel: ViewModel() {
         val currentBoard = _board.value!!
         currentBoard[row][col] = _currentPlayer.value!!
         _board.value = currentBoard
+
+        addGameRecord()
 
         if (checkWin(row, col)) {
             _gameStatus.value = "${_currentPlayer.value} 승리!"
@@ -37,6 +43,7 @@ class TicTacToeViewModel: ViewModel() {
             _currentPlayer.value = if (_currentPlayer.value == "X") "O" else "X"
             _gameStatus.value = "${_currentPlayer.value}의 차례입니다"
         }
+
     }
 
     private fun checkWin(row: Int, col: Int): Boolean {
@@ -62,5 +69,12 @@ class TicTacToeViewModel: ViewModel() {
         _gameStatus.value = "게임 시작!"
         _isGameOver.value = false
         _resetButtonText.value = "초기화"
+    }
+    private fun addGameRecord() {
+        val newRecord = GameRecord(
+            _gameRecords.value!!.size + 1,  // 턴 번호
+            _board.value!!.flatten().toTypedArray()  // 보드를 1차원 배열로 변환하여 저장
+        )
+        _gameRecords.value = _gameRecords.value!! + newRecord  // 새로운 기록을 추가
     }
 }
