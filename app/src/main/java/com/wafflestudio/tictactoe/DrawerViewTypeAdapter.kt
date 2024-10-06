@@ -66,14 +66,16 @@ class DrawerViewTypeAdapter(
             binding.moveNumber.text = "${boardItem.moveNumber} 턴"
 
             val cellIds = arrayOf(
-                binding.cell00, binding.cell01, binding.cell02,
-                binding.cell10, binding.cell11, binding.cell12,
-                binding.cell20, binding.cell21, binding.cell22
+                binding.cell00, binding.cell01, binding.cell02, binding.cell03, binding.cell04,
+                binding.cell10, binding.cell11, binding.cell12, binding.cell13, binding.cell14,
+                binding.cell20, binding.cell21, binding.cell22, binding.cell23, binding.cell24,
+                binding.cell30, binding.cell31, binding.cell32, binding.cell33, binding.cell34,
+                binding.cell40, binding.cell41, binding.cell42, binding.cell43, binding.cell44,
             )
 
             for (i in boardItem.board.indices) {
                 for (j in boardItem.board[i].indices) {
-                    cellIds[i * 3 + j].text = boardItem.board[i][j]
+                    cellIds[i * 5 + j].text = boardItem.board[i][j]
                 }
             }
 
@@ -86,14 +88,16 @@ class DrawerViewTypeAdapter(
             binding.stateText.text = boardItem.gameStatus
 
             val cellIds = arrayOf(
-                binding.cell00, binding.cell01, binding.cell02,
-                binding.cell10, binding.cell11, binding.cell12,
-                binding.cell20, binding.cell21, binding.cell22
+                binding.cell00, binding.cell01, binding.cell02, binding.cell03, binding.cell04,
+                binding.cell10, binding.cell11, binding.cell12, binding.cell13, binding.cell14,
+                binding.cell20, binding.cell21, binding.cell22, binding.cell23, binding.cell24,
+                binding.cell30, binding.cell31, binding.cell32, binding.cell33, binding.cell34,
+                binding.cell40, binding.cell41, binding.cell42, binding.cell43, binding.cell44,
             )
 
             for (i in boardItem.board.indices) {
                 for (j in boardItem.board[i].indices) {
-                    cellIds[i * 3 + j].text = boardItem.board[i][j]
+                    cellIds[i * 5 + j].text = boardItem.board[i][j]
                 }
             }
         }

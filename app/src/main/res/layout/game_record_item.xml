@@ -16,8 +16,8 @@
         android:id="@+id/miniBoard"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:columnCount="3"
-        android:rowCount="3">
+        android:columnCount="5"
+        android:rowCount="5">
 
         <!-- 9개의 TextView를 그리드로 배치 -->
         <TextView
@@ -30,6 +30,12 @@
             android:id="@+id/cell02"
             style="@style/MiniBoardCell" />
         <TextView
+            android:id="@+id/cell03"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell04"
+            style="@style/MiniBoardCell"/>
+        <TextView
             android:id="@+id/cell10"
             style="@style/MiniBoardCell" />
         <TextView
@@ -39,6 +45,12 @@
             android:id="@+id/cell12"
             style="@style/MiniBoardCell" />
         <TextView
+            android:id="@+id/cell13"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell14"
+            style="@style/MiniBoardCell"/>
+        <TextView
             android:id="@+id/cell20"
             style="@style/MiniBoardCell" />
         <TextView
@@ -47,6 +59,42 @@
         <TextView
             android:id="@+id/cell22"
             style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell23"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell24"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell30"
+            style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell31"
+            style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell32"
+            style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell33"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell34"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell40"
+            style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell41"
+            style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell42"
+            style="@style/MiniBoardCell" />
+        <TextView
+            android:id="@+id/cell43"
+            style="@style/MiniBoardCell"/>
+        <TextView
+            android:id="@+id/cell44"
+            style="@style/MiniBoardCell"/>
     </GridLayout>
 
     <Button
