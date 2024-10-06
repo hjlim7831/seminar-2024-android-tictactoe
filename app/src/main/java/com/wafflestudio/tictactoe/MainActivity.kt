@@ -63,8 +63,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.board.observe(this) { board ->
-            board.forEachIndexed { rowIndex, row ->
+        viewModel.currentIndex.observe(this) { _ ->
+            val currentBoard = viewModel.getCurrentBoard()
+            currentBoard.forEachIndexed { rowIndex, row ->
                 row.forEachIndexed { colIndex, cell ->
                     buttons[rowIndex * 3 + colIndex].text = cell
                 }
@@ -81,9 +82,6 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.resetButtonText.observe(this) { text ->
             binding.resetButton.text = text
-        }
-        viewModel.gameRecords.observe(this) { records ->
-            gameAdapter.notifyDataSetChanged()
         }
     }
 }

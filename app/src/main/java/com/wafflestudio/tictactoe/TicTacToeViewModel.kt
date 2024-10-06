@@ -1,16 +1,20 @@
 package com.wafflestudio.tictactoe
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.wafflestudio.tictactoe.model.GameRecord
 
 class TicTacToeViewModel: ViewModel() {
-    private val _board = MutableLiveData(Array(3) { Array(3) { "" } })
-    val board: LiveData<Array<Array<String>>> = _board
+    private val _boardHistory = MutableLiveData(
+        mutableListOf(List(3) { List(3) {""} })
+    )
+    val boardHistory: MutableLiveData<MutableList<List<List<String>>>> = _boardHistory
 
-    private val _currentPlayer = MutableLiveData("X")
-    val currentPlayer: LiveData<String> = _currentPlayer
+    private val _currentIndex = MutableLiveData(0)
+    val currentIndex: LiveData<Int> = _currentIndex
+
     private val _gameStatus = MutableLiveData("게임 시작!")
     val gameStatus: LiveData<String> = _gameStatus
 
@@ -24,38 +28,66 @@ class TicTacToeViewModel: ViewModel() {
     val gameRecords: LiveData<List<GameRecord>> = _gameRecords
 
     fun onCellClicked(row: Int, col: Int) {
+        val currentBoard = getCurrentBoard()
+        val currentPlayer = getCurrentPlayer()
+        Log.d("tracking", "currentPlayer: $currentPlayer")
 
-        if (_isGameOver.value == true || _board.value!![row][col].isNotEmpty()) return
+        if (_isGameOver.value == true || currentBoard[row][col].isNotEmpty()) return
 
-        val currentBoard = _board.value!!
-        currentBoard[row][col] = _currentPlayer.value!!
-        _board.value = currentBoard
+        val newBoard = currentBoard.mapIndexed { r, rowList ->
+            rowList.mapIndexed { c, cell ->
+                if (r == row && c == col) currentPlayer else cell
+            }
+        }
+        Log.d("tracking", "newBoard: $newBoard")
 
-        addGameRecord()
+        _boardHistory.value = _boardHistory.value?.apply {
+            add(newBoard)
+        }
+
+        _currentIndex.value = (_currentIndex.value ?: 0) + 1
 
         if (checkWin(row, col)) {
-            _gameStatus.value = "${_currentPlayer.value} 승리!"
+            _gameStatus.value = "$currentPlayer 승리!"
             endGame()
         } else if (isBoardFull()) {
             _gameStatus.value = "무승부!"
             endGame()
         } else {
-            _currentPlayer.value = if (_currentPlayer.value == "X") "O" else "X"
-            _gameStatus.value = "${_currentPlayer.value}의 차례입니다"
+            _gameStatus.value = "$currentPlayer 의 차례입니다"
         }
+    }
 
+    fun getCurrentBoard(): List<List<String>> {
+        return boardHistory.value?.getOrNull(currentIndex.value ?: 0)
+            ?: List(3) { List(3) {""} }
+    }
+
+    private fun getCurrentPlayer(): String {
+        return if (_currentIndex.value!! % 2 == 0) "O" else "X"
     }
 
     private fun checkWin(row: Int, col: Int): Boolean {
-        val board = _board.value!!
-        return (board[row][0] == board[row][1] && board[row][1] == board[row][2]) ||
-                (board[0][col] == board[1][col] && board[1][col] == board[2][col]) ||
-                (row == col && board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
-                (row + col == 2 && board[0][2] == board[1][1] && board[1][1] == board[2][0])
+        val board = getCurrentBoard()
+        val player = board[row][col]
+        if (player.isEmpty()) return false
+
+        // check row
+        if (board[row].all { it == player }) return true
+
+        // check col
+        if (board.all { it[col] == player }) return true
+
+        // check diagonals
+        if (row == col && board.indices.all { board[it][it] == player }) return true
+        if (row + col == 2 && board.indices.all { board[it][2 - it] == player }) return true
+
+        return false
     }
 
     private fun isBoardFull(): Boolean {
-        return _board.value!!.all { row -> row.all { it.isNotEmpty() } }
+        val currentBoard = getCurrentBoard()
+        return currentBoard.all { row -> row.all { it.isNotEmpty() } }
     }
 
     private fun endGame() {
@@ -64,17 +96,10 @@ class TicTacToeViewModel: ViewModel() {
     }
 
     fun resetGame() {
-        _board.value = Array(3) { Array(3) { "" } }
-        _currentPlayer.value = "X"
+        _boardHistory.value = mutableListOf(List(3) { List(3) {""} })
+        _currentIndex.value = 0
         _gameStatus.value = "게임 시작!"
         _isGameOver.value = false
         _resetButtonText.value = "초기화"
-    }
-    private fun addGameRecord() {
-        val newRecord = GameRecord(
-            _gameRecords.value!!.size + 1,  // 턴 번호
-            _board.value!!.flatten().toTypedArray()  // 보드를 1차원 배열로 변환하여 저장
-        )
-        _gameRecords.value = _gameRecords.value!! + newRecord  // 새로운 기록을 추가
     }
 }
