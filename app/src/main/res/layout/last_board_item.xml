@@ -24,6 +24,12 @@
             android:id="@+id/cell02"
             style="@style/LastBoardCell" />
         <TextView
+            android:id="@+id/cell03"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell04"
+            style="@style/LastBoardCell"/>
+        <TextView
             android:id="@+id/cell10"
             style="@style/LastBoardCell" />
         <TextView
@@ -33,6 +39,12 @@
             android:id="@+id/cell12"
             style="@style/LastBoardCell" />
         <TextView
+            android:id="@+id/cell13"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell14"
+            style="@style/LastBoardCell"/>
+        <TextView
             android:id="@+id/cell20"
             style="@style/LastBoardCell" />
         <TextView
@@ -41,6 +53,42 @@
         <TextView
             android:id="@+id/cell22"
             style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell23"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell24"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell30"
+            style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell31"
+            style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell32"
+            style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell33"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell34"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell40"
+            style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell41"
+            style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell42"
+            style="@style/LastBoardCell" />
+        <TextView
+            android:id="@+id/cell43"
+            style="@style/LastBoardCell"/>
+        <TextView
+            android:id="@+id/cell44"
+            style="@style/LastBoardCell"/>
     </GridLayout>
 
     <TextView

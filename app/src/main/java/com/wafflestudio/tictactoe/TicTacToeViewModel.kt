@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 
 class TicTacToeViewModel: ViewModel() {
     private val _boardHistory = MutableLiveData(
-        mutableListOf(List(3) { List(3) {""} })
+        mutableListOf(List(5) { List(5) {""} })
     )
     val boardHistory: MutableLiveData<MutableList<List<List<String>>>> = _boardHistory
 
@@ -62,7 +62,7 @@ class TicTacToeViewModel: ViewModel() {
 
     fun getCurrentBoard(): List<List<String>> {
         return boardHistory.value?.getOrNull(currentIndex.value ?: 0)
-            ?: List(3) { List(3) {""} }
+            ?: List(5) { List(5) {""} }
     }
 
     private fun getCurrentPlayer(): String {
@@ -74,33 +74,42 @@ class TicTacToeViewModel: ViewModel() {
     }
 
     private fun checkWin(board: List<List<String>>): Boolean {
+        val n = board.size
+        val directions = listOf(
+            Pair(1, 0),  // 가로
+            Pair(0, 1),  // 세로
+            Pair(1, 1),  // 대각선 (좌상단 -> 우하단)
+            Pair(1, -1)  // 대각선 (좌하단 -> 우상단)
+        )
 
-        // check row
-        for (row in board) {
-            if (row[0].isNotEmpty() && row.all { it == row[0] }) {
-                return true
+        for (row in 0 until n) {
+            for (col in 0 until n) {
+                if (board[row][col].isNotEmpty()) {
+                    for ((dx, dy) in directions) {
+                        if (checkDirection(board, row, col, dx, dy)) {
+                            return true
+                        }
+                    }
+                }
             }
         }
-        // check col
-        for (col in board.indices) {
-            if (board[0][col].isNotEmpty() && board.all { it[col] == board[0][col] }) {
-                return true
-            }
-        }
-
-        // check main diagonal
-        if (board[0][0].isNotEmpty() && board.indices.all { board[it][it] == board[0][0] }) {
-            return true
-        }
-
-        // Check anti-diagonal
-        if (board[0][2].isNotEmpty() && board.indices.all { board[it][2 - it] == board[0][2] }) {
-            return true
-        }
-
-
         return false
     }
+
+    private fun checkDirection(board: List<List<String>>, row: Int, col: Int, dx: Int, dy: Int): Boolean {
+        val player = board[row][col]
+        val n = board.size
+
+        for (i in 0 until 5) {
+            val newRow = row + i * dx
+            val newCol = col + i * dy
+            if (newRow !in 0 until n || newCol !in 0 until n || board[newRow][newCol] != player) {
+                return false
+            }
+        }
+        return true
+    }
+
 
     private fun isBoardFull(): Boolean {
         val currentBoard = getCurrentBoard()
@@ -108,7 +117,7 @@ class TicTacToeViewModel: ViewModel() {
     }
 
     fun resetGame() {
-        _boardHistory.value = mutableListOf(List(3) { List(3) {""} })
+        _boardHistory.value = mutableListOf(List(5) { List(5) {""} })
         _currentIndex.value = 0
         _gameStatus.value = "게임 시작!"
         _isGameOver.value = false

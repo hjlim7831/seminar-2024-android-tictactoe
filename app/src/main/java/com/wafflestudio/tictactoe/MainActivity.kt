@@ -74,13 +74,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupGame() {
         buttons = listOf(
-            binding.button00, binding.button01, binding.button02,
-            binding.button10, binding.button11, binding.button12,
-            binding.button20, binding.button21, binding.button22
+            binding.button00, binding.button01, binding.button02, binding.button03, binding.button04,
+            binding.button10, binding.button11, binding.button12, binding.button13, binding.button14,
+            binding.button20, binding.button21, binding.button22, binding.button23, binding.button24,
+            binding.button30, binding.button31, binding.button32, binding.button33, binding.button34,
+            binding.button40, binding.button41, binding.button42, binding.button43, binding.button44
         )
         buttons.forEachIndexed { index, button ->
             button.setOnClickListener {
-                viewModel.onCellClicked(index / 3, index % 3)
+                viewModel.onCellClicked(index / 5, index % 5)
             }
         }
 
@@ -94,7 +96,7 @@ class MainActivity : AppCompatActivity() {
             val currentBoard = viewModel.getCurrentBoard()
             currentBoard.forEachIndexed { rowIndex, row ->
                 row.forEachIndexed { colIndex, cell ->
-                    buttons[rowIndex * 3 + colIndex].text = cell
+                    buttons[rowIndex * 5 + colIndex].text = cell
                 }
             }
         }
