@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.wafflestudio.tictactoe.model.GameRecord
 
 class TicTacToeViewModel: ViewModel() {
     private val _boardHistory = MutableLiveData(
@@ -20,12 +19,6 @@ class TicTacToeViewModel: ViewModel() {
 
     private val _isGameOver = MutableLiveData(false)
     val isGameOver: LiveData<Boolean> = _isGameOver
-
-    private val _resetButtonText = MutableLiveData("초기화")
-    val resetButtonText: LiveData<String> = _resetButtonText
-
-    private val _gameRecords = MutableLiveData<List<GameRecord>>(mutableListOf())
-    val gameRecords: LiveData<List<GameRecord>> = _gameRecords
 
     fun onCellClicked(row: Int, col: Int) {
         val currentBoard = getCurrentBoard()
@@ -46,16 +39,25 @@ class TicTacToeViewModel: ViewModel() {
         }
 
         _currentIndex.value = (_currentIndex.value ?: 0) + 1
+        updateGameStatus()
+    }
 
-        if (checkWin(row, col)) {
-            _gameStatus.value = "$currentPlayer 승리!"
-            endGame()
-        } else if (isBoardFull()) {
-            _gameStatus.value = "무승부!"
-            endGame()
-        } else {
-            _gameStatus.value = "$currentPlayer 의 차례입니다"
+    private fun updateGameStatus() {
+        val currentBoard = getCurrentBoard()
+        // 승리 여부 체크
+        if (checkWin(currentBoard)) {
+            _gameStatus.value = "${getOpponentPlayer()}가 승리했습니다!"
+            _isGameOver.value = true
+            return
         }
+        if (isBoardFull()) {
+            _gameStatus.value = "무승부!"
+            _isGameOver.value = true
+            return
+        }
+        // 차례 변경: 현재 차례가 "O"면 "X", "X"면 "O"로 전환
+        _gameStatus.value = "${getCurrentPlayer()}의 차례입니다"
+        _isGameOver.value = false
     }
 
     fun getCurrentBoard(): List<List<String>> {
@@ -67,20 +69,35 @@ class TicTacToeViewModel: ViewModel() {
         return if (_currentIndex.value!! % 2 == 0) "O" else "X"
     }
 
-    private fun checkWin(row: Int, col: Int): Boolean {
-        val board = getCurrentBoard()
-        val player = board[row][col]
-        if (player.isEmpty()) return false
+    private fun getOpponentPlayer(): String {
+        return if (getCurrentPlayer() == "O") "X" else "O"
+    }
+
+    private fun checkWin(board: List<List<String>>): Boolean {
 
         // check row
-        if (board[row].all { it == player }) return true
-
+        for (row in board) {
+            if (row[0].isNotEmpty() && row.all { it == row[0] }) {
+                return true
+            }
+        }
         // check col
-        if (board.all { it[col] == player }) return true
+        for (col in board.indices) {
+            if (board[0][col].isNotEmpty() && board.all { it[col] == board[0][col] }) {
+                return true
+            }
+        }
 
-        // check diagonals
-        if (row == col && board.indices.all { board[it][it] == player }) return true
-        if (row + col == 2 && board.indices.all { board[it][2 - it] == player }) return true
+        // check main diagonal
+        if (board[0][0].isNotEmpty() && board.indices.all { board[it][it] == board[0][0] }) {
+            return true
+        }
+
+        // Check anti-diagonal
+        if (board[0][2].isNotEmpty() && board.indices.all { board[it][2 - it] == board[0][2] }) {
+            return true
+        }
+
 
         return false
     }
@@ -90,16 +107,22 @@ class TicTacToeViewModel: ViewModel() {
         return currentBoard.all { row -> row.all { it.isNotEmpty() } }
     }
 
-    private fun endGame() {
-        _isGameOver.value = true
-        _resetButtonText.value = "한판 더"
-    }
-
     fun resetGame() {
         _boardHistory.value = mutableListOf(List(3) { List(3) {""} })
         _currentIndex.value = 0
         _gameStatus.value = "게임 시작!"
         _isGameOver.value = false
-        _resetButtonText.value = "초기화"
+    }
+    
+    fun getResetButtonText():String {
+        return if (_isGameOver.value == false) "초기화" else "한판 더"
+    }
+
+    fun goToMove(position: Int) {
+        if (position >= 0 && position < (_boardHistory.value?.size ?:0)) {
+            _currentIndex.value = position
+            _boardHistory.value = _boardHistory.value?.take(position + 1)?.toMutableList()
+            updateGameStatus()
+        }
     }
 }
