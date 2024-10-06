@@ -1,80 +1,128 @@
 package com.wafflestudio.tictactoe
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.wafflestudio.tictactoe.model.GameRecord
 
 class TicTacToeViewModel: ViewModel() {
-    private val _board = MutableLiveData(Array(3) { Array(3) { "" } })
-    val board: LiveData<Array<Array<String>>> = _board
+    private val _boardHistory = MutableLiveData(
+        mutableListOf(List(3) { List(3) {""} })
+    )
+    val boardHistory: MutableLiveData<MutableList<List<List<String>>>> = _boardHistory
 
-    private val _currentPlayer = MutableLiveData("X")
-    val currentPlayer: LiveData<String> = _currentPlayer
+    private val _currentIndex = MutableLiveData(0)
+    val currentIndex: LiveData<Int> = _currentIndex
+
     private val _gameStatus = MutableLiveData("게임 시작!")
     val gameStatus: LiveData<String> = _gameStatus
 
     private val _isGameOver = MutableLiveData(false)
     val isGameOver: LiveData<Boolean> = _isGameOver
 
-    private val _resetButtonText = MutableLiveData("초기화")
-    val resetButtonText: LiveData<String> = _resetButtonText
-
-    private val _gameRecords = MutableLiveData<List<GameRecord>>(mutableListOf())
-    val gameRecords: LiveData<List<GameRecord>> = _gameRecords
-
     fun onCellClicked(row: Int, col: Int) {
+        val currentBoard = getCurrentBoard()
+        val currentPlayer = getCurrentPlayer()
+        Log.d("tracking", "currentPlayer: $currentPlayer")
 
-        if (_isGameOver.value == true || _board.value!![row][col].isNotEmpty()) return
+        if (_isGameOver.value == true || currentBoard[row][col].isNotEmpty()) return
 
-        val currentBoard = _board.value!!
-        currentBoard[row][col] = _currentPlayer.value!!
-        _board.value = currentBoard
+        val newBoard = currentBoard.mapIndexed { r, rowList ->
+            rowList.mapIndexed { c, cell ->
+                if (r == row && c == col) currentPlayer else cell
+            }
+        }
+        Log.d("tracking", "newBoard: $newBoard")
 
-        addGameRecord()
-
-        if (checkWin(row, col)) {
-            _gameStatus.value = "${_currentPlayer.value} 승리!"
-            endGame()
-        } else if (isBoardFull()) {
-            _gameStatus.value = "무승부!"
-            endGame()
-        } else {
-            _currentPlayer.value = if (_currentPlayer.value == "X") "O" else "X"
-            _gameStatus.value = "${_currentPlayer.value}의 차례입니다"
+        _boardHistory.value = _boardHistory.value?.apply {
+            add(newBoard)
         }
 
+        _currentIndex.value = (_currentIndex.value ?: 0) + 1
+        updateGameStatus()
     }
 
-    private fun checkWin(row: Int, col: Int): Boolean {
-        val board = _board.value!!
-        return (board[row][0] == board[row][1] && board[row][1] == board[row][2]) ||
-                (board[0][col] == board[1][col] && board[1][col] == board[2][col]) ||
-                (row == col && board[0][0] == board[1][1] && board[1][1] == board[2][2]) ||
-                (row + col == 2 && board[0][2] == board[1][1] && board[1][1] == board[2][0])
+    private fun updateGameStatus() {
+        val currentBoard = getCurrentBoard()
+        // 승리 여부 체크
+        if (checkWin(currentBoard)) {
+            _gameStatus.value = "${getOpponentPlayer()}가 승리했습니다!"
+            _isGameOver.value = true
+            return
+        }
+        if (isBoardFull()) {
+            _gameStatus.value = "무승부!"
+            _isGameOver.value = true
+            return
+        }
+        // 차례 변경: 현재 차례가 "O"면 "X", "X"면 "O"로 전환
+        _gameStatus.value = "${getCurrentPlayer()}의 차례입니다"
+        _isGameOver.value = false
+    }
+
+    fun getCurrentBoard(): List<List<String>> {
+        return boardHistory.value?.getOrNull(currentIndex.value ?: 0)
+            ?: List(3) { List(3) {""} }
+    }
+
+    private fun getCurrentPlayer(): String {
+        return if (_currentIndex.value!! % 2 == 0) "O" else "X"
+    }
+
+    private fun getOpponentPlayer(): String {
+        return if (getCurrentPlayer() == "O") "X" else "O"
+    }
+
+    private fun checkWin(board: List<List<String>>): Boolean {
+
+        // check row
+        for (row in board) {
+            if (row[0].isNotEmpty() && row.all { it == row[0] }) {
+                return true
+            }
+        }
+        // check col
+        for (col in board.indices) {
+            if (board[0][col].isNotEmpty() && board.all { it[col] == board[0][col] }) {
+                return true
+            }
+        }
+
+        // check main diagonal
+        if (board[0][0].isNotEmpty() && board.indices.all { board[it][it] == board[0][0] }) {
+            return true
+        }
+
+        // Check anti-diagonal
+        if (board[0][2].isNotEmpty() && board.indices.all { board[it][2 - it] == board[0][2] }) {
+            return true
+        }
+
+
+        return false
     }
 
     private fun isBoardFull(): Boolean {
-        return _board.value!!.all { row -> row.all { it.isNotEmpty() } }
-    }
-
-    private fun endGame() {
-        _isGameOver.value = true
-        _resetButtonText.value = "한판 더"
+        val currentBoard = getCurrentBoard()
+        return currentBoard.all { row -> row.all { it.isNotEmpty() } }
     }
 
     fun resetGame() {
-        _board.value = Array(3) { Array(3) { "" } }
-        _currentPlayer.value = "X"
+        _boardHistory.value = mutableListOf(List(3) { List(3) {""} })
+        _currentIndex.value = 0
         _gameStatus.value = "게임 시작!"
         _isGameOver.value = false
-        _resetButtonText.value = "초기화"
     }
-    private fun addGameRecord() {
-        val newRecord = GameRecord(
-            _gameRecords.value!!.size + 1,  // 턴 번호
-            _board.value!!.flatten().toTypedArray()  // 보드를 1차원 배열로 변환하여 저장
-        )
-        _gameRecords.value = _gameRecords.value!! + newRecord  // 새로운 기록을 추가
+    
+    fun getResetButtonText():String {
+        return if (_isGameOver.value == false) "초기화" else "한판 더"
+    }
+
+    fun goToMove(position: Int) {
+        if (position >= 0 && position < (_boardHistory.value?.size ?:0)) {
+            _currentIndex.value = position
+            _boardHistory.value = _boardHistory.value?.take(position + 1)?.toMutableList()
+            updateGameStatus()
+        }
     }
 }

@@ -7,12 +7,12 @@ import androidx.core.view.GravityCompat
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.wafflestudio.tictactoe.databinding.ActivityMainBinding
+import com.wafflestudio.tictactoe.model.DrawerItem
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var viewModel: TicTacToeViewModel
     private lateinit var buttons: List<Button>
-    private lateinit var gameAdapter : GameAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -22,17 +22,44 @@ class MainActivity : AppCompatActivity() {
 
         setupDrawer()
         setupGame()
-        setupRecyclerView()
+        setupDrawerRecyclerView()
         observeViewModel()
     }
 
-    private fun setupRecyclerView() {
-        // ViewModel에서 관리하는 gameRecords를 Adapter에 전달
-        gameAdapter = GameAdapter(viewModel.gameRecords.value ?: listOf())
+    private fun setupDrawerRecyclerView() {
+        binding.drawerItemRecyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
+        val drawerItems = mutableListOf<DrawerItem>()
 
-        // RecyclerView에 Adapter와 LayoutManager 설정
-        binding.recyclerView.layoutManager = LinearLayoutManager(this)
-        binding.recyclerView.adapter = gameAdapter
+        fun updateDrawerItems() {
+            val history = viewModel.boardHistory.value ?: return
+            val isGameOver = viewModel.isGameOver.value ?: false
+            val gameStatus = viewModel.gameStatus.value ?: ""
+
+            drawerItems.clear()
+            drawerItems.add(DrawerItem.StartButtonItem)
+            history.forEachIndexed { index, board ->
+                if (index != 0) {
+                    if (index == history.size - 1 && isGameOver) {
+                        drawerItems.add(DrawerItem.LastBoardItem(board, gameStatus))
+                    } else {
+                        drawerItems.add(DrawerItem.GameRecordItem(index, board))
+                    }
+                }
+            }
+
+            binding.drawerItemRecyclerView.adapter = DrawerViewTypeAdapter(
+                items = drawerItems,
+                onBoardItemClick = { moveNumber ->
+                    viewModel.goToMove(moveNumber)
+                    binding.main.closeDrawer(GravityCompat.START)
+                }
+            )
+        }
+
+        viewModel.boardHistory.observe(this) { _ -> updateDrawerItems() }
+        viewModel.isGameOver.observe(this) { _ -> updateDrawerItems() }
+        viewModel.gameStatus.observe(this) { _ -> updateDrawerItems() }
+
     }
 
     private fun setupDrawer() {
@@ -63,8 +90,9 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun observeViewModel() {
-        viewModel.board.observe(this) { board ->
-            board.forEachIndexed { rowIndex, row ->
+        viewModel.currentIndex.observe(this) { _ ->
+            val currentBoard = viewModel.getCurrentBoard()
+            currentBoard.forEachIndexed { rowIndex, row ->
                 row.forEachIndexed { colIndex, cell ->
                     buttons[rowIndex * 3 + colIndex].text = cell
                 }
@@ -77,13 +105,7 @@ class MainActivity : AppCompatActivity() {
 
         viewModel.isGameOver.observe(this) { isGameOver ->
             buttons.forEach { it.isEnabled = !isGameOver }
-        }
-
-        viewModel.resetButtonText.observe(this) { text ->
-            binding.resetButton.text = text
-        }
-        viewModel.gameRecords.observe(this) { records ->
-            gameAdapter.notifyDataSetChanged()
+            binding.resetButton.text = viewModel.getResetButtonText()
         }
     }
 }
